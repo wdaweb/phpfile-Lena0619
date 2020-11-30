@@ -12,22 +12,30 @@
 
 include_once "base.php";
 
-if(!empty($_FILES['txt']['tmp_name'])){
+if (!empty($_FILES['txt']['tmp_name'])) {
     echo $_FILES['txt']['name'];
-    move_uploaded_file($_FILES['txt']['tmp_name'],"./upload/".$_FILES['txt']['name']);
+    move_uploaded_file($_FILES['txt']['tmp_name'], "./upload/" . $_FILES['txt']['name']);
 
-    $file=fopen("./upload/".$_FILES['txt']['name'],'r');
-    $line=fgets($file);
-    echo $line;
-    $line=explode(",",$line);
-    $data=[
-        'name'=>$line[1],
-        'age'=>$line[2],
-        'birthday'=>$line[3],
-        'addr'=>$line[4]
-    ];
+    $file = fopen("./upload/".$_FILES['txt']['name'], 'r');
 
-    save('students',$data);
+    $num = 0;
+    while (!feof($file)) {
+        $line = fgets($file);
+        if ($num != 0 && strlen($line)>0) {    //strlen($line)>0過濾掉空白行
+            $line = explode(",", $line);
+            $data = [
+                'name' => $line[1],
+                'age' => $line[2],
+                'birthday' => $line[3],
+                'addr' => $line[4]
+            ];
+
+            save('students',$data);
+        }
+        $num++;
+    }
+
+    fclose($file);
 }
 
 ?>
@@ -51,8 +59,6 @@ if(!empty($_FILES['txt']['tmp_name'])){
         <input type="file" name="txt">
         <input type="submit" value="上傳">
     </form>
-
-
 
     <!----讀出匯入完成的資料----->
 
